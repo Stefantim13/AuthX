@@ -1,4 +1,5 @@
 const db = require('./connection');
+const { hashPasswordSync } = require('../lib/passwords');
 
 function seedDatabase() {
   const insertUser = db.prepare(`
@@ -25,14 +26,14 @@ function seedDatabase() {
 
     const analyst = insertUser.run(
       'analyst@authx.com',
-      'Password123',
+      hashPasswordSync('Password123#Analyst'),
       'ANALYST',
       0
     );
 
     const manager = insertUser.run(
       'manager@authx.com',
-      'Admin123',
+      hashPasswordSync('Password123#Manager'),
       'MANAGER',
       0
     );
@@ -90,4 +91,8 @@ function seedDatabase() {
   console.log('Database seeded successfully.');
 }
 
-seedDatabase();
+if (require.main === module) {
+  seedDatabase();
+}
+
+module.exports = seedDatabase;

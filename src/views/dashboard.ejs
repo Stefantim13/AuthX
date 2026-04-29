@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AuthX - Dashboard</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="dashboard-shell">
+    <header class="topbar">
+      <div>
+        <span class="eyebrow">Dashboard</span>
+        <h1>Internal portal</h1>
+        <p class="subtitle">
+          Signed in as <strong><%= user.email %></strong> with role <strong><%= user.role %></strong>.
+        </p>
+      </div>
+
+      <form method="POST" action="/logout">
+        <button type="submit" class="secondary-button">Logout</button>
+      </form>
+    </header>
+
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="alert alert-error"><%= error %></div>
+    <% } %>
+
+    <section class="dashboard-grid">
+      <div class="dashboard-card">
+        <h2>Search tickets</h2>
+        <form method="GET" action="/dashboard" class="inline-form">
+          <input type="text" name="q" value="<%= search %>" placeholder="Search title or description" />
+          <button type="submit">Search</button>
+        </form>
+        <p class="small-text">Search by title or description.</p>
+      </div>
+
+      <div class="dashboard-card">
+        <h2>Create ticket</h2>
+        <form method="POST" action="/tickets" class="form">
+          <label for="title">Title</label>
+          <input id="title" name="title" type="text" required />
+
+          <label for="description">Description</label>
+          <textarea id="description" name="description" rows="4" required></textarea>
+
+          <label for="severity">Severity</label>
+          <select id="severity" name="severity">
+            <option value="LOW">LOW</option>
+            <option value="MED">MED</option>
+            <option value="HIGH">HIGH</option>
+          </select>
+
+          <button type="submit">Create Ticket</button>
+        </form>
+      </div>
+    </section>
+
+    <section class="dashboard-card">
+      <h2>Visible tickets</h2>
+      <p class="small-text">Displayed tickets depend on the current account permissions.</p>
+
+      <div class="ticket-list">
+        <% if (!tickets.length) { %>
+          <div class="ticket-item empty-state">No tickets match the current filter.</div>
+        <% } %>
+
+        <% tickets.forEach((ticket) => { %>
+          <article class="ticket-item">
+            <div class="ticket-row">
+              <h3><%= ticket.title %></h3>
+              <span class="badge"><%= ticket.severity %></span>
+            </div>
+            <p><%= ticket.description %></p>
+            <div class="ticket-meta">
+              <span>Status: <strong><%= ticket.status %></strong></span>
+              <span>Owner: <strong><%= ticket.owner_email %></strong></span>
+              <span>API: <code>/tickets/<%= ticket.id %></code></span>
+            </div>
+          </article>
+        <% }) %>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

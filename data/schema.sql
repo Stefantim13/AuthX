@@ -8,7 +8,10 @@ CREATE TABLE IF NOT EXISTS users (
         CHECK (role IN ('ANALYST', 'MANAGER')),
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     locked INTEGER NOT NULL DEFAULT 0
-        CHECK (locked IN (0, 1))
+        CHECK (locked IN (0, 1)),
+    failed_login_attempts INTEGER NOT NULL DEFAULT 0,
+    locked_until DATETIME,
+    last_failed_login_at DATETIME
 );
 
 CREATE TABLE IF NOT EXISTS tickets (
@@ -39,9 +42,9 @@ CREATE TABLE IF NOT EXISTS audit_logs (
 CREATE TABLE IF NOT EXISTS password_reset_tokens (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
-    token TEXT NOT NULL,
+    token_hash TEXT NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    expires_at DATETIME,
+    expires_at DATETIME NOT NULL,
     used_at DATETIME,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
@@ -56,4 +59,4 @@ CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_user_id
     ON password_reset_tokens(user_id);
 
 CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_token
-    ON password_reset_tokens(token);
+    ON password_reset_tokens(token_hash);

@@ -7,10 +7,13 @@
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
-  <div class="container">
-    <div class="card">
-      <h1>AuthX Login</h1>
-      <p class="subtitle">Sign in to access the internal portal</p>
+  <div class="page-shell">
+    <div class="auth-panel">
+      <div>
+        <span class="eyebrow">AuthX</span>
+        <h1>Sign in</h1>
+        <p class="subtitle">Use your account details to access the internal portal.</p>
+      </div>
 
       <% if (error) { %>
         <div class="alert alert-error"><%= error %></div>
@@ -39,7 +42,7 @@
           required
         />
 
-        <button type="submit">Login</button>
+        <button type="submit">Sign In</button>
       </form>
 
       <div class="links">

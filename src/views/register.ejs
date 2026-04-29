@@ -7,10 +7,13 @@
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
-  <div class="container">
-    <div class="card">
-      <h1>Create Account</h1>
-      <p class="subtitle">Register a new AuthX user</p>
+  <div class="page-shell">
+    <div class="auth-panel">
+      <div>
+        <span class="eyebrow">Registration</span>
+        <h1>Create account</h1>
+        <p class="subtitle">Create a new account for the internal portal.</p>
+      </div>
 
       <% if (error) { %>
         <div class="alert alert-error"><%= error %></div>
@@ -26,7 +29,7 @@
           id="email"
           name="email"
           type="email"
-          placeholder="Enter email"
+          placeholder="new.user@authx.com"
           required
         />
 
@@ -35,7 +38,7 @@
           id="password"
           name="password"
           type="password"
-          placeholder="Enter password"
+          placeholder="Example: StrongPass1!"
           required
         />
 
@@ -45,8 +48,10 @@
           <option value="MANAGER">MANAGER</option>
         </select>
 
-        <button type="submit">Register</button>
+        <button type="submit">Create Account</button>
       </form>
+
+          <div class="hint-box">Password must contain at least 10 characters, one uppercase letter, one lowercase letter, one number and one special character.</div>
 
       <div class="links">
         <a href="/login">Back to login</a>
