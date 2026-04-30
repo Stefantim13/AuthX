@@ -3,6 +3,40 @@ const db = require('../db/connection');
 
 const router = express.Router();
 
+function isJsonRequest(req) {
+  const contentType = req.headers['content-type'] || '';
+  const accept = req.headers.accept || '';
+  return contentType.includes('application/json') || accept.includes('application/json');
+}
+
+function requireAuth(req, res, next) {
+  if (!req.session.user) {
+    if (isJsonRequest(req)) {
+      return res.status(401).json({
+        success: false,
+        message: 'Not authenticated'
+      });
+    }
+
+    return res.redirect('/login');
+  }
+
+  return next();
+}
+
+function getTickets(searchTerm = '') {
+  const search = String(searchTerm || '').trim();
+  const pattern = `%${search}%`;
+
+  return db.prepare(`
+    SELECT tickets.*, users.email AS owner_email
+    FROM tickets
+    JOIN users ON users.id = tickets.owner_id
+    WHERE (? = '' OR tickets.title LIKE ? OR tickets.description LIKE ?)
+    ORDER BY tickets.created_at DESC, tickets.id DESC
+  `).all(search, pattern, pattern);
+}
+
 router.get('/login', (req, res) => {
   res.render('login', {
     error: null,
@@ -60,6 +94,10 @@ router.post('/register', (req, res) => {
     VALUES (?, ?, ?, ?)
   `).run(email, password, userRole, 0);
 
+  if (!isJsonRequest(req)) {
+    return res.redirect('/login');
+  }
+
   return res.status(201).json({
     success: true,
     message: 'User registered successfully',
@@ -96,6 +134,10 @@ router.post('/login', (req, res) => {
     role: user.role
   };
 
+  if (!isJsonRequest(req)) {
+    return res.redirect('/dashboard');
+  }
+
   return res.status(200).json({
     success: true,
     message: 'Login successful',
@@ -120,6 +162,11 @@ router.get('/me', (req, res) => {
 router.post('/logout', (req, res) => {
   req.session.destroy(() => {
     res.clearCookie('connect.sid');
+
+    if (!isJsonRequest(req)) {
+      return res.redirect('/login');
+    }
+
     return res.status(200).json({
       success: true,
       message: 'Logout successful'
@@ -208,6 +255,57 @@ router.post('/reset-password', (req, res) => {
   return res.status(200).json({
     success: true,
     message: 'Password reset successful'
+  });
+});
+
+router.get('/dashboard', requireAuth, (req, res) => {
+  const search = String(req.query.q || '').trim();
+
+  return res.render('dashboard', {
+    user: req.session.user,
+    tickets: getTickets(search),
+    search
+  });
+});
+
+router.post('/tickets', requireAuth, (req, res) => {
+  const { title, description, severity } = req.body;
+
+  if (!title || !description) {
+    return res.status(400).render('dashboard', {
+      user: req.session.user,
+      tickets: getTickets(),
+      search: '',
+      error: 'Title and description are required.'
+    });
+  }
+
+  db.prepare(`
+    INSERT INTO tickets (title, description, severity, status, owner_id)
+    VALUES (?, ?, ?, ?, ?)
+  `).run(title, description, severity || 'LOW', 'OPEN', req.session.user.id);
+
+  return res.redirect('/dashboard');
+});
+
+router.get('/tickets/:id', requireAuth, (req, res) => {
+  const ticket = db.prepare(`
+    SELECT tickets.*, users.email AS owner_email
+    FROM tickets
+    JOIN users ON users.id = tickets.owner_id
+    WHERE tickets.id = ?
+  `).get(req.params.id);
+
+  if (!ticket) {
+    return res.status(404).json({
+      success: false,
+      message: 'Ticket not found'
+    });
+  }
+
+  return res.status(200).json({
+    success: true,
+    ticket
   });
 });
 
