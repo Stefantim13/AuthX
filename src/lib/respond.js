@@ -13,7 +13,12 @@ function respond(req, res, statusCode, payload, viewName, viewModel = {}) {
     return res.redirect(payload.redirectTo);
   }
 
-  return res.status(statusCode).render(viewName, viewModel);
+  return res.status(statusCode).render(viewName, {
+    error: null,
+    success: null,
+    resetToken: null,
+    ...viewModel
+  });
 }
 
 module.exports = {

@@ -1,21 +1,24 @@
-const axios = require('axios');
+const axios = require("axios");
 
-const targetUrl = 'http://localhost:3000/login';
-const email = 'analyst@authx.com';
-const password = 'HackedPassword123';
+const targetUrl = "http://localhost:3000/login";
+const email = process.argv[2] || 'analyst@authx.com';
+const password = process.argv[3] || 'Password123';
 
 (async () => {
   try {
-  // Login to obtain the session cookie
-    const response = await axios.post(targetUrl, { email, password }, { withCredentials: true });
-    const setCookie = response.headers['set-cookie'];
-    if (setCookie) {
-  console.log('[SUCCESS] Session cookie obtained:');
-  console.log(setCookie[0]);
+    const response = await axios.post(
+      targetUrl,
+      { email, password },
+      { validateStatus: () => true }
+    );
+
+    if (response.status === 200) {
+      console.log("[SUCCESS] Login endpoint accepted credentials.");
+      console.log("Set-Cookie present:", Boolean(response.headers["set-cookie"]));
     } else {
-  console.log('[FAIL] No session cookie received.');
+      console.log("[FAIL] Login failed with status:", response.status);
     }
   } catch (err) {
-    console.log('[ERROR]', err.message);
+    console.log("[ERROR]", err.message);
   }
 })();
