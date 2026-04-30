@@ -1,7 +1,7 @@
 const axios = require('axios');
 
 const targetUrl = 'http://localhost:3000/login';
-const email = 'analyst@authx.com';
+const email = process.argv[2] || 'analyst@authx.com';
 const passwordList = [
   '123456',
   'password',

