@@ -14,7 +14,7 @@ const password = process.argv[3] || 'Password123';
 
     if (response.status === 200) {
       console.log("[SUCCESS] Login endpoint accepted credentials.");
-      console.log("Set-Cookie present:", Boolean(response.headers["set-cookie"]));
+      console.log("Set-Cookie present:", response.headers["set-cookie"]);
     } else {
       console.log("[FAIL] Login failed with status:", response.status);
     }
